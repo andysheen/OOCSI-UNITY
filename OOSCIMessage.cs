@@ -7,11 +7,10 @@ public class OOSCIMessage
 {
 
     //---------These parameters are always present-----------//
-    public string _MESSAGE_ID;
-    public string _MESSAGE_HANDLE;
     public string recipient;
-    public int timestamp;
+    public long timestamp;
     public string sender;
+    public string text;
     //-------------------------------------------------------//
     //---Make sure these are updated to match your message---//
     public float rotation;
