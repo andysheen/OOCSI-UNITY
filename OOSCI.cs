@@ -8,7 +8,8 @@ using UnityEngine;
 
 public class OOSCI : MonoBehaviour
 {
-	OOSCIMessage incomingMessage,outgoingMessage;
+	OOSCIMessage incomingMessage;
+	OOSCIMessage outgoingMessage;
 
 	public float cubeRotation;
 
