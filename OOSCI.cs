@@ -16,6 +16,10 @@ public class OOSCI : MonoBehaviour
 	private TcpClient socketConnection;
 	private Thread clientReceiveThread;
 	private bool isConnectedToServer = false;
+	private string clientList;
+	private bool clientListReady = false;
+	private string channelList;
+	private bool channelListReady = false;
 	#endregion
 	#region public members
 	OOSCIMessage incomingMessage;
@@ -23,15 +27,17 @@ public class OOSCI : MonoBehaviour
 	public string serverName = "oocsi.id.tue.nl";
 	public int port = 4444;
 	public string OOCSIName;
-	public string subscribeChannel;
+	public string subscribeChannel1;
+	public string subscribeChannel2;
+	public string subscribeChannel3;
+	public bool logging;
 	#endregion
 
+	//test variables
+	int rotationX;
+	int rotationY;
+	int rotationZ;
 
-	public bool logging;
-	private string clientList;
-	private bool clientListReady = false;
-	private string channelList;
-	private bool channelListReady = false;
 
 	//Used as a way to know what kind of response is expected, if waiting on one from server
 	enum MessageResponseType {CONNECTING,CLIENTLIST,CHANNELLIST,IDLE}
@@ -48,7 +54,15 @@ public class OOSCI : MonoBehaviour
 	{
 		if (Input.GetKeyDown(KeyCode.UpArrow))
 		{
-			sendTestMessage();
+			sendTestMessage(subscribeChannel1, rotationX++%360);
+		}
+		if (Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			sendTestMessage(subscribeChannel2, rotationY++% 360);
+		}
+		if (Input.GetKeyDown(KeyCode.LeftArrow))
+		{
+			sendTestMessage(subscribeChannel3, rotationZ++% 360);
 		}
 	}
 
@@ -113,9 +127,9 @@ public class OOSCI : MonoBehaviour
 	/// <summary> 	
 	/// Subscribe to channels	
 	/// </summary> 	
-	private void SubscribeToChannels()
+	private void SubscribeToChannel(string _subscribeChannel)
 	{
-		sendMessageToOOSCI("subscribe " + subscribeChannel + "\n");
+		sendMessageToOOSCI("subscribe " + _subscribeChannel + "\n");
 		messageResponse = MessageResponseType.IDLE;
 	}
 	/// <summary> 	
@@ -152,7 +166,9 @@ public class OOSCI : MonoBehaviour
 								{
 									isConnectedToServer = true;
 									print("connected to OOSCI server.");
-									SubscribeToChannels();
+									SubscribeToChannel(subscribeChannel1);
+									SubscribeToChannel(subscribeChannel2);
+									SubscribeToChannel(subscribeChannel3);
 
 								}
 							}
@@ -209,28 +225,37 @@ public class OOSCI : MonoBehaviour
 		if(isConnectedToServer == true)
         {
 			incomingMessage = JsonUtility.FromJson<OOSCIMessage>(message);
-			//Change 'incomingMessage.rotation' to match your incoming message
-			print(incomingMessage.rotation);
-
+			//Change 'incomingMessage.rotation' to match your incoming message key
+			if (incomingMessage.recipient == subscribeChannel1)
+			{
+				print("Channel 1: " + incomingMessage.rotation);
+			}
+			else if (incomingMessage.recipient == subscribeChannel2)
+			{
+				print("Channel 2: " + incomingMessage.rotation);
+			}
+			else if (incomingMessage.recipient == subscribeChannel3)
+			{
+				print("Channel 3: " + incomingMessage.rotation);
+			}
 		}
 
 	}
 	/// <summary> 	
 	/// send test Message.
 	/// </summary>
-    private void sendTestMessage()
+    private void sendTestMessage(String _subscribeChannel, int value)
     {
-
-		//Change 'outgoingMessage.rotation' to match your outgoing message.
-		outgoingMessage.rotation = 100;
-		outgoingMessage.recipient = getSubscribeChannel();
+		//Change 'outgoingMessage.rotation' to match your JSON key message.
+		outgoingMessage.rotation = value;
+		outgoingMessage.recipient = _subscribeChannel;
 		outgoingMessage.text = "content";
 		outgoingMessage.sender = getName();
 		outgoingMessage.timestamp = -1;
 		string outMessage= "{}";
 		outMessage = JsonUtility.ToJson(outgoingMessage);
-		print("sendraw " + getSubscribeChannel() + " " + outMessage + "\n");
-		sendMessageToOOSCI("sendraw " + getSubscribeChannel() + " "+ outMessage + "\n");
+		print("sendraw " + _subscribeChannel + " " + outMessage + "\n");
+		sendMessageToOOSCI("sendraw " + _subscribeChannel + " "+ outMessage + "\n");
 		
 	}
 	/// <summary> 	
@@ -333,13 +358,6 @@ public class OOSCI : MonoBehaviour
 		if (logging)
 			Debug.Log(message);
 	}
-	/// <summary>
-	// Returns name of subscribed channel
-	/// </summary> 	
-	public string getSubscribeChannel()
-    {
-		return subscribeChannel;
-    }
 
 	/// <summary>
 	// Unsubscribes from channel
@@ -355,5 +373,10 @@ public class OOSCI : MonoBehaviour
 	{
 		sendMessageToOOSCI("quit");
 	}
+
+	private string getRecipient()
+    {
+		return incomingMessage.recipient.ToString();
+    }
 
 }
