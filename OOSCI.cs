@@ -10,8 +10,6 @@ using UnityEngine;
 
 public class OOSCI : MonoBehaviour
 {
-	OOSCIMessage incomingMessage;
-	public OOSCIMessage outgoingMessage;
 
 	#region private members
 	private int MSG_SIZE = 2048;
@@ -19,7 +17,9 @@ public class OOSCI : MonoBehaviour
 	private Thread clientReceiveThread;
 	private bool isConnectedToServer = false;
 	#endregion
-	#region public members 
+	#region public members
+	OOSCIMessage incomingMessage;
+	public OOSCIMessage outgoingMessage;
 	public string serverName = "oocsi.id.tue.nl";
 	public int port = 4444;
 	public string OOCSIName;
@@ -140,7 +140,7 @@ public class OOSCI : MonoBehaviour
 						Array.Copy(bytes, 0, incommingData, 0, length);
 						// Convert byte array to string message. 						
 						string serverMessage = Encoding.ASCII.GetString(incommingData);
-						Debug.Log("server message received as: " + serverMessage);
+						print("server message received as: " + serverMessage);
 						if(serverMessage.IndexOf("ping") >= 0 || serverMessage == " ")
 						{
 							SendPingAck();	
@@ -151,7 +151,7 @@ public class OOSCI : MonoBehaviour
 								if(serverMessage.IndexOf("{'message' : \"welcome " + OOCSIName + "\"}") >= 0 && isConnectedToServer == false)
 								{
 									isConnectedToServer = true;
-									Debug.Log("connected to OOSCI server.");
+									print("connected to OOSCI server.");
 									SubscribeToChannels();
 
 								}
@@ -210,7 +210,7 @@ public class OOSCI : MonoBehaviour
         {
 			incomingMessage = JsonUtility.FromJson<OOSCIMessage>(message);
 			//Change 'incomingMessage.rotation' to match your incoming message
-			Debug.Log(incomingMessage.rotation);
+			print(incomingMessage.rotation);
 
 		}
 
@@ -229,7 +229,7 @@ public class OOSCI : MonoBehaviour
 		outgoingMessage.timestamp = -1;
 		string outMessage= "{}";
 		outMessage = JsonUtility.ToJson(outgoingMessage);
-		Debug.Log("sendraw " + getSubscribeChannel() + " " + outMessage + "\n");
+		print("sendraw " + getSubscribeChannel() + " " + outMessage + "\n");
 		sendMessageToOOSCI("sendraw " + getSubscribeChannel() + " "+ outMessage + "\n");
 		
 	}
