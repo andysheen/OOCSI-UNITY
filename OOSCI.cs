@@ -7,10 +7,11 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using System.IO;
 
 public class OOSCI : MonoBehaviour
 {
-
+	TcpClient client;
 	#region private members
 	private int MSG_SIZE = 2048;
 	private TcpClient socketConnection;
@@ -46,6 +47,7 @@ public class OOSCI : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
+		
 		ConnectToServer();
 	}
 
@@ -143,56 +145,69 @@ public class OOSCI : MonoBehaviour
 			Byte[] bytes = new Byte[MSG_SIZE];
 			while (true)
 			{
+				
 				// Get a stream object for reading 				
 				using (NetworkStream stream = socketConnection.GetStream())
 				{
 					int length;
-					// Read incomming stream into byte arrary. 					
+					// Read incoming stream into byte arrary.
+					//
 					while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
 					{
-						var incommingData = new byte[length];
-						Array.Copy(bytes, 0, incommingData, 0, length);
-						// Convert byte array to string message. 						
-						string serverMessage = Encoding.ASCII.GetString(incommingData);
-						print("server message received as: " + serverMessage);
-						if(serverMessage.IndexOf("ping") >= 0 || serverMessage == " ")
-						{
-							SendPingAck();	
-						} else
-                        {
-							if (messageResponse == MessageResponseType.CONNECTING)
-							{
-								if(serverMessage.IndexOf("{'message' : \"welcome " + OOCSIName + "\"}") >= 0 && isConnectedToServer == false)
-								{
-									isConnectedToServer = true;
-									print("connected to OOSCI server.");
-									SubscribeToChannel(subscribeChannel1);
-									SubscribeToChannel(subscribeChannel2);
-									SubscribeToChannel(subscribeChannel3);
+						var incomingData = new byte[length];
+						Array.Copy(bytes, 0, incomingData, 0, length);
 
+						// Convert byte array to string message. 						
+						string serverMessage = Encoding.ASCII.GetString(incomingData);
+						string[] messages = serverMessage.Split('\n');
+						Debug.Log(messages.Length);
+						foreach (string line in messages)
+						{
+							if(line != "")
+							{ 
+								//string serverMessage = line;
+								print("server message received as: " + line);
+
+								if (line.IndexOf("ping") >= 0 || line == " ")
+								{
+									SendPingAck();
+								}
+								else
+								{
+									if (messageResponse == MessageResponseType.CONNECTING)
+									{
+										if (line.IndexOf("{'message' : \"welcome " + OOCSIName + "\"}") >= 0 && isConnectedToServer == false)
+										{
+											isConnectedToServer = true;
+											print("connected to OOSCI server.");
+											SubscribeToChannel(subscribeChannel1);
+											SubscribeToChannel(subscribeChannel2);
+											SubscribeToChannel(subscribeChannel3);
+										}
+									}
+									else if (messageResponse == MessageResponseType.CLIENTLIST)
+									{
+										clientList = line;
+										clientListReady = true;
+										messageResponse = MessageResponseType.IDLE;
+									}
+									else if (messageResponse == MessageResponseType.CHANNELLIST)
+									{
+										channelList = line;
+										channelListReady = true;
+										messageResponse = MessageResponseType.IDLE;
+									}
+									else
+									{
+										if (line != null || line.IndexOf(" ") > 0)
+										{
+											Debug.Log("process!");
+											processOOSCIMessage(line);
+										}
+									}
 								}
 							}
-							else if (messageResponse == MessageResponseType.CLIENTLIST)
-							{
-								clientList = serverMessage;
-								clientListReady = true;
-								messageResponse = MessageResponseType.IDLE;
-
-
-							}
-							else if (messageResponse == MessageResponseType.CHANNELLIST)
-							{
-								channelList = serverMessage;
-								channelListReady = true;
-								messageResponse = MessageResponseType.IDLE;
-
-
-							}
-							else 
-							{
-								processOOSCIMessage(serverMessage);
-							}
-                        }
+						}
 					}
 				}
 			}
