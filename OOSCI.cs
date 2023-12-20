@@ -160,7 +160,6 @@ public class OOSCI : MonoBehaviour
 						// Convert byte array to string message. 						
 						string serverMessage = Encoding.ASCII.GetString(incomingData);
 						string[] messages = serverMessage.Split('\n');
-						Debug.Log(messages.Length);
 						foreach (string line in messages)
 						{
 							if(line != "")
@@ -201,7 +200,6 @@ public class OOSCI : MonoBehaviour
 									{
 										if (line != null || line.IndexOf(" ") > 0)
 										{
-											Debug.Log("process!");
 											processOOSCIMessage(line);
 										}
 									}
