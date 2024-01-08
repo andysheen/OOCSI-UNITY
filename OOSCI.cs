@@ -25,8 +25,8 @@ public class OOSCI : MonoBehaviour
 	#region public members
 	OOSCIMessage incomingMessage;
 	public OOSCIMessage outgoingMessage;
-	public string serverName = "oocsi.id.tue.nl";
-	public int port = 4444;
+	public string serverName;
+	public int port;
 	public string OOCSIName;
 	public string subscribeChannel1;
 	public string subscribeChannel2;
