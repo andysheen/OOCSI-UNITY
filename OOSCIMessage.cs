@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class OOSCIMessage
+public class OOCSIMessage
 {
 
     //---------These parameters are always present-----------//
