@@ -1,4 +1,4 @@
-// OOSCI Unity Sender and Reciever code by Andy Sheen 2023.
+// OOCI Unity Sender and Reciever code by Andy Sheen 2023.
 // Adapted from Github user danielbierwirth TCPTestClient Gist: https://gist.github.com/danielbierwirth/0636650b005834204cb19ef5ae6ccedb#file-tcptestclient-cs
 // and https://github.com/iddi/oocsi-esp
 
