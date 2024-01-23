@@ -1,6 +1,6 @@
-// OOCI Unity Sender and Reciever code by Andy Sheen 2023.
+// OOCSI Unity Sender and Reciever code by Andy Sheen 2023.
 // Adapted from Github user danielbierwirth TCPTestClient Gist: https://gist.github.com/danielbierwirth/0636650b005834204cb19ef5ae6ccedb#file-tcptestclient-cs
-// and https://github.com/iddi/oocsi-esp
+// and https://github.com/iddi/OOCSI-esp
 
 using System;
 using System.Net.Sockets;
@@ -9,7 +9,7 @@ using System.Threading;
 using UnityEngine;
 using System.IO;
 
-public class OOSCI : MonoBehaviour
+public class OOCSI : MonoBehaviour
 {
 	TcpClient client;
 	#region private members
@@ -23,8 +23,8 @@ public class OOSCI : MonoBehaviour
 	private bool channelListReady = false;
 	#endregion
 	#region public members
-	OOSCIMessage incomingMessage;
-	public OOSCIMessage outgoingMessage;
+	OOCSIMessage incomingMessage;
+	public OOCSIMessage outgoingMessage;
 	public string serverName;
 	public int port;
 	public string OOCSIName;
@@ -98,9 +98,9 @@ public class OOSCI : MonoBehaviour
 	}
 
 	/// <summary> 	
-	/// Utility function to post to OOSCI server	
+	/// Utility function to post to OOCSI server	
 	/// </summary> 	
-	private void sendMessageToOOSCI(string message)
+	private void sendMessageToOOCSI(string message)
     {
 		if (socketConnection == null)
 		{
@@ -131,7 +131,7 @@ public class OOSCI : MonoBehaviour
 	/// </summary> 	
 	private void SubscribeToChannel(string _subscribeChannel)
 	{
-		sendMessageToOOSCI("subscribe " + _subscribeChannel + "\n");
+		sendMessageToOOCSI("subscribe " + _subscribeChannel + "\n");
 		messageResponse = MessageResponseType.IDLE;
 	}
 	/// <summary> 	
@@ -178,7 +178,7 @@ public class OOSCI : MonoBehaviour
 										if (line.IndexOf("{'message' : \"welcome " + OOCSIName + "\"}") >= 0 && isConnectedToServer == false)
 										{
 											isConnectedToServer = true;
-											print("connected to OOSCI server.");
+											print("connected to OOCSI server.");
 											SubscribeToChannel(subscribeChannel1);
 											SubscribeToChannel(subscribeChannel2);
 											SubscribeToChannel(subscribeChannel3);
@@ -200,7 +200,7 @@ public class OOSCI : MonoBehaviour
 									{
 										if (line != null || line.IndexOf(" ") > 0)
 										{
-											processOOSCIMessage(line);
+											processOOCSIMessage(line);
 										}
 									}
 								}
@@ -216,11 +216,11 @@ public class OOSCI : MonoBehaviour
 		}
 	}
 	/// <summary> 	
-	/// Connects to OOSCI server with Unique client name.	
+	/// Connects to OOCSI server with Unique client name.	
 	/// </summary> 	
 	private void SendUniqueID()
 	{
-		sendMessageToOOSCI(OOCSIName + "(JSON)" + "\n");
+		sendMessageToOOCSI(OOCSIName + "(JSON)" + "\n");
 		
 	}
 	/// <summary> 	
@@ -228,16 +228,16 @@ public class OOSCI : MonoBehaviour
 	/// </summary>
 	private void SendPingAck()
 	{
-		sendMessageToOOSCI("."+ "\n");
+		sendMessageToOOCSI("."+ "\n");
 	}
 	/// <summary> 	
-	/// Process JSON message from OOSCI server.
+	/// Process JSON message from OOCSI server.
 	/// </summary>
-	private void processOOSCIMessage(string message)
+	private void processOOCSIMessage(string message)
     {
 		if(isConnectedToServer == true)
         {
-			incomingMessage = JsonUtility.FromJson<OOSCIMessage>(message);
+			incomingMessage = JsonUtility.FromJson<OOCSIMessage>(message);
 			//Change 'incomingMessage.rotation' to match your incoming message key
 			if (incomingMessage.recipient == subscribeChannel1)
 			{
@@ -268,7 +268,7 @@ public class OOSCI : MonoBehaviour
 		string outMessage= "{}";
 		outMessage = JsonUtility.ToJson(outgoingMessage);
 		print("sendraw " + _subscribeChannel + " " + outMessage + "\n");
-		sendMessageToOOSCI("sendraw " + _subscribeChannel + " "+ outMessage + "\n");
+		sendMessageToOOCSI("sendraw " + _subscribeChannel + " "+ outMessage + "\n");
 		
 	}
 	/// <summary> 	
@@ -276,7 +276,7 @@ public class OOSCI : MonoBehaviour
 	/// </summary> 	
 	private void getClients()
 	{
-		sendMessageToOOSCI("clients" + "\n");
+		sendMessageToOOCSI("clients" + "\n");
 		messageResponse = MessageResponseType.CLIENTLIST;
 
 	}
@@ -285,7 +285,7 @@ public class OOSCI : MonoBehaviour
 	/// </summary> 	
 	private void getChannels()
 	{
-		sendMessageToOOSCI("channels" + "\n");
+		sendMessageToOOCSI("channels" + "\n");
 		messageResponse = MessageResponseType.CHANNELLIST;
 	}
 	/// <summary>
@@ -376,7 +376,7 @@ public class OOSCI : MonoBehaviour
 	// Unsubscribes from channel
 	/// </summary> 	
 	private void unsubscribe(String chan) {
-		sendMessageToOOSCI("unsubscribe " + chan + "\n");
+		sendMessageToOOCSI("unsubscribe " + chan + "\n");
 	}
 
 	/// <summary>
@@ -384,7 +384,7 @@ public class OOSCI : MonoBehaviour
 	/// </summary> 	
 	private void disconnect()
 	{
-		sendMessageToOOSCI("quit");
+		sendMessageToOOCSI("quit");
 	}
 
 	private string getRecipient()
